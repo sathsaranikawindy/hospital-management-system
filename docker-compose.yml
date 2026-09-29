@@ -1,0 +1,62 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb-container
+    ports:
+      - "27017:27017"
+    networks:
+      - hotel-network
+
+  hotel-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hotel-api-container
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongodb-container:27017/hotel_db
+    depends_on:
+      - mongodb
+    networks:
+      - hotel-network
+
+  hotel-gateway:
+    build:
+      context: ./hotel-api-gateway
+      dockerfile: Dockerfile
+    container_name: hotel-gateway-container
+    ports:
+      - "8080:8080"
+    depends_on:
+      - hotel-backend
+    networks:
+      - hotel-network
+
+  hotel-client:
+    build:
+      context: ./hotel-client
+      dockerfile: Dockerfile
+    container_name: hotel-client-container
+    ports:
+      - "3000:3000"
+    depends_on:
+      - hotel-gateway
+    networks:
+      - hotel-network
+
+  hospital-docs:
+    image: swaggerapi/swagger-ui
+    container_name: hospital-docs-container
+    ports:
+      - "8082:8080"
+    environment:
+      - SWAGGER_JSON=/docs/openapi.yaml
+    volumes:
+      - ./docs:/docs
+    networks:
+      - hotel-network
+
+networks:
+  hotel-network:
+    driver: bridge

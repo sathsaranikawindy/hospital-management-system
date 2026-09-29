@@ -1,0 +1,26 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: YOUR_ACTUAL_GOOGLE_CLIENT_ID_HERE
+            client-secret: YOUR_ACTUAL_GOOGLE_CLIENT_SECRET_HERE
+            scope:
+              - openid
+              - profile
+              - email
+  cloud:
+    gateway:
+      routes:
+        - id: hotel-backend-route
+          uri: http://hotel-api-container:8081
+          predicates:
+            - Path=/api/rooms/**
+          filters:
+            - TokenRelay=
