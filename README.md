@@ -1,4 +1,4 @@
-# Enterprise Hotel Management System (Microservices Architecture)
+# Enterprise Hospital Management System (Microservices Architecture)
 
 ![Java](https://img.shields.io/badge/Java-17-orange)
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-green)
