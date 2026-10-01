@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotel Management System</title>
+    <title>Hospital Management System</title>
     <style>
         * {
             box-sizing: border-box;
@@ -156,10 +156,10 @@
 
     <!-- Sidebar Menu -->
     <div class="sidebar">
-        <h2>Hotel System</h2>
+        <h2>Hospital System</h2>
         <button class="nav-btn active" onclick="switchUI('ui-dashboard', this)">1. Dashboard</button>
-        <button class="nav-btn" onclick="switchUI('ui-capacity', this)">2. Capacity Check</button>
-        <button class="nav-btn" onclick="switchUI('ui-booking', this)">3. Room Booking</button>
+        <button class="nav-btn" onclick="switchUI('ui-capacity', this)">2. Bed Capacity Check</button>
+        <button class="nav-btn" onclick="switchUI('ui-booking', this)">3. Patient Admission</button>
     </div>
 
     <!-- Main Content Area -->
@@ -167,17 +167,17 @@
 
         <!-- UI 1: Dashboard -->
         <div id="ui-dashboard" class="ui-section active">
-            <h1>Hotel Overview Dashboard</h1>
-            <p>Welcome to the Hotel Management System Gateway Portal.</p>
+            <h1>Hospital Overview Dashboard</h1>
+            <p>Welcome to the Hospital Management System Gateway Portal.</p>
             
             <div class="dashboard-cards">
                 <div class="card">
-                    <h3>Total Rooms</h3>
-                    <p>45</p>
+                    <h3>Total Hospital Beds</h3>
+                    <p>120</p>
                 </div>
                 <div class="card">
-                    <h3>Available Rooms</h3>
-                    <p>18</p>
+                    <h3>Available Beds</h3>
+                    <p>24</p>
                 </div>
                 <div class="card">
                     <h3>Gateway Status</h3>
@@ -186,18 +186,18 @@
             </div>
         </div>
 
-        <!-- UI 2: Room Capacity Check -->
+        <!-- UI 2: Bed Capacity Check -->
         <div id="ui-capacity" class="ui-section">
-            <h1>Room Capacity Checker</h1>
-            <p>Check if room capacity is sufficient for guests via API Gateway.</p>
+            <h1>Bed Capacity Checker</h1>
+            <p>Check if hospital bed capacity is sufficient for incoming patients via API Gateway.</p>
             <br>
             <form id="capacityForm">
                 <div class="form-group">
-                    <label for="guests">Number of Guests:</label>
-                    <input type="number" id="guests" value="5" required>
+                    <label for="patients">Number of Incoming Patients:</label>
+                    <input type="number" id="patients" value="5" required>
                 </div>
                 <div class="form-group">
-                    <label for="capacity">Room Capacity Limit:</label>
+                    <label for="capacity">Ward Capacity Limit:</label>
                     <input type="number" id="capacity" value="3" required>
                 </div>
                 <button type="button" class="submit-btn" onclick="checkCapacity()">Check Capacity</button>
@@ -206,36 +206,36 @@
             <div id="capacityOutput" class="output-box" style="display: none;"></div>
         </div>
 
-        <!-- UI 3: Room Booking -->
+        <!-- UI 3: Patient Admission -->
         <div id="ui-booking" class="ui-section">
-            <h1>Book a Room</h1>
-            <p>Enter details below to submit a new room booking request.</p>
+            <h1>Patient Admission</h1>
+            <p>Enter patient details below to submit a new admission request.</p>
             <br>
-            <form id="bookingForm" onsubmit="event.preventDefault(); alert('Booking request submitted!');">
+            <form id="bookingForm" onsubmit="event.preventDefault(); alert('Patient admission request submitted!');">
                 <div class="form-group">
-                    <label for="guestName">Guest Name:</label>
-                    <input type="text" id="guestName" placeholder="Enter guest name" required>
+                    <label for="patientName">Patient Name:</label>
+                    <input type="text" id="patientName" placeholder="Enter patient full name" required>
                 </div>
                 <div class="form-group">
-                    <label for="roomType">Room Type:</label>
-                    <select id="roomType">
-                        <option value="single">Single Room</option>
-                        <option value="double">Double Room</option>
-                        <option value="suite">Luxury Suite</option>
+                    <label for="wardType">Ward / Unit Type:</label>
+                    <select id="wardType">
+                        <option value="general">General Ward</option>
+                        <option value="semi-private">Semi-Private Room</option>
+                        <option value="private">Private Suite</option>
+                        <option value="icu">ICU (Intensive Care Unit)</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="checkIn">Check-In Date:</label>
-                    <input type="date" id="checkIn" required>
+                    <label for="admissionDate">Admission Date:</label>
+                    <input type="date" id="admissionDate" required>
                 </div>
-                <button type="submit" class="submit-btn">Confirm Booking</button>
+                <button type="submit" class="submit-btn">Confirm Admission</button>
             </form>
         </div>
 
     </div>
 
     <script>
-        // Switch between UI 1, UI 2, and UI 3
         function switchUI(sectionId, btn) {
             document.querySelectorAll('.ui-section').forEach(sec => sec.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -244,20 +244,34 @@
             btn.classList.add('active');
         }
 
-        // Call Node.js backend client for UI 2
         async function checkCapacity() {
-            const guests = document.getElementById('guests').value;
+            const patients = document.getElementById('patients').value;
             const capacity = document.getElementById('capacity').value;
             const outputDiv = document.getElementById('capacityOutput');
 
+            outputDiv.style.display = 'block';
+            outputDiv.style.borderColor = '#0284c7';
+            outputDiv.style.color = '#0f172a';
+            outputDiv.innerText = "Checking capacity with API Gateway...";
+
             try {
-                const response = await fetch(`/api/capacity-check?guests=${guests}&capacity=${capacity}`);
+                const response = await fetch(`http://localhost:8080/api/capacity-check?guests=${patients}&capacity=${capacity}`, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json, text/plain, */*'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server returned HTTP ${response.status}`);
+                }
+
                 const data = await response.text();
-                
-                outputDiv.style.display = 'block';
+                outputDiv.style.borderColor = '#16a34a';
                 outputDiv.innerText = data;
             } catch (error) {
-                outputDiv.style.display = 'block';
+                outputDiv.style.borderColor = '#dc2626';
+                outputDiv.style.color = '#dc2626';
                 outputDiv.innerText = "Error connecting to gateway: " + error.message;
             }
         }

@@ -17,10 +17,20 @@ spring:
               - email
   cloud:
     gateway:
+      globalcors:
+        add-to-config-global-cors: true
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
       routes:
         - id: hotel-backend-route
           uri: http://hotel-api-container:8081
           predicates:
-            - Path=/api/rooms/**
-          filters:
-            - TokenRelay=
+            - Path=/api/**

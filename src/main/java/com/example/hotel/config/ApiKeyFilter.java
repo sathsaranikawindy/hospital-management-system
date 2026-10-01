@@ -23,21 +23,20 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        // Swagger documentation සදහා API Key එක පරීක්ෂා නොකර Access ලබා දීම
+        
         if (path.contains("/swagger-ui") || path.contains("/v3/api-docs")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        // Request Header එකෙන් API Key එක ලබා ගැනීම
+        
         String apiKey = request.getHeader("X-API-KEY");
 
         try {
-            // ApiKeyService එක මගින් MongoDB හි Key එක Check කිරීම
+            
             apiKeyService.validateApiKey(apiKey);
-            filterChain.doFilter(request, response); // Valid නම් request එක controller එකට යැවීම
         } catch (Exception e) {
-            // Invalid නම් 401 Unauthorized Response එකක් යැවීම
+            
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
             response.getWriter().write("{\"error\": \"" + e.getMessage() + "\"}");
